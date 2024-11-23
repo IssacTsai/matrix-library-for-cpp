@@ -170,33 +170,54 @@ Matrix operator!(Matrix a) {
 }
 
 // trace
-complex<double> Tr(Matrix a) {
-    complex<double> sum = 0.0;
+matrix_type Tr(const Matrix& a) {
+    matrix_type sum = 0.0;
     if (a.rows != a.cols) {
         cerr << "Matrix dimensions don't match for Trace" << endl;
         return 0;
-    } else {
-        for (int i = 0; i < a.rows; i++) {
-            sum += a.data[i * a.cols + i];
-        }
-        return sum;
     }
+
+    for (int i = 0; i < a.rows; ++i) {
+        sum += a.data[i * a.cols + i];
+    }
+    return sum;
 }
 
-// 2x2 determinant
-complex<double> det(Matrix a) {
-    if (a.rows != a.cols || a.rows != 2) {
-        cerr << "can't calculate determinant, only for 2x2" << endl;
+// determinant
+matrix_type det(const Matrix& a) {
+    if (a.rows != a.cols) {
+        cerr << "Cannot calculate determinant of a non-square matrix" << endl;
         return 0;
-    } else {
+    }
+
+    int n = a.rows;
+    if (n == 2) {
         return a.data[0] * a.data[3] - a.data[1] * a.data[2];
     }
+    matrix_type result = 0.0;
+    for (int i = 0; i < n; ++i) {
+        // create submatrix
+        Matrix subMatrix(n - 1, n - 1);
+        for (int j = 1; j < n; ++j) {
+            int sub_col_index = 0;
+            for (int k = 0; k < n; ++k) {
+                if (k != i) {
+                    subMatrix.data[(j - 1) * (n - 1) + sub_col_index] =
+                        a.data[j * n + k];
+                    ++sub_col_index;
+                }
+            }
+        }
+        // calculate det using Recursion(遞迴)
+        result += a.data[i] * det(subMatrix) * (i % 2 == 0 ? 1.0 : -1.0);
+    }
+
+    return result;
 }
 
 /*
 2x2 pauli matrix
-input = 0,1,2,3
-correp. unit,x,y,z
+0, 1, 2, 3 : unit, x, y, z
  */
 Matrix pauli(int mu) {
     matrix_type i(0, 1);
