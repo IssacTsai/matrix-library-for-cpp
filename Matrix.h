@@ -253,7 +253,7 @@ Matrix ones(int row, int col = 0) {
 }
 
 // identity mateix
-Matrix I(int row) {
+Matrix identity(int row) {
     vector<matrix_type> result(row * row, 0);
     for (int i = 0; i < row * row; i += (row + 1)) {
         result[i] = 1;
